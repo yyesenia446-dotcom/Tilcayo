@@ -1,0 +1,262 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Tilkayo - Aprende inglés doblando</title>
+<link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet">
+<style>
+:root{--outer:#EBF4F8;--screen:#F7FBFD;--blue:#5BA4CF;--blue2:#4389B5;--dark:#2C3E50;--muted:#7F8C8D;--white:#fff;--green:#2ECC71;--red:#E74C3C}
+*{box-sizing:border-box;margin:0;padding:0;font-family:Nunito,sans-serif}
+body{background:var(--outer);min-height:100vh;display:flex;justify-content:center;align-items:center;padding:14px;color:var(--dark)}
+.app{width:100%;max-width:440px;height:min(900px,96vh);min-height:650px;background:var(--screen);border:6px solid #75B9DE;border-radius:36px;box-shadow:0 20px 40px #0002;overflow:hidden;display:flex;flex-direction:column}
+.status{display:flex;justify-content:space-between;padding:10px 20px 4px;font-size:12px;font-weight:800}
+.screen{display:none;flex:1;overflow-y:auto;padding:15px 18px 20px;flex-direction:column;gap:12px}
+.screen.active{display:flex}
+.welcome{background:linear-gradient(180deg,#6EB5DC,#89C4E4);color:white;text-align:center;justify-content:space-around;align-items:center;padding:28px}
+.logo{font-size:42px;font-weight:800}.sub{font-weight:700}
+.mascot{font-size:115px;filter:drop-shadow(0 8px 4px #0002);transition:transform .35s}
+input,button{font:inherit}
+.name-input{width:100%;padding:13px 16px;border:0;border-radius:22px;font-size:16px;text-align:center;margin:10px 0;color:var(--dark)}
+.btn{border:0;border-radius:24px;padding:11px 15px;font-weight:800;cursor:pointer;background:var(--blue);color:white}
+.btn.white{background:white;color:var(--dark);width:100%;padding:14px}
+.btn.outline{background:white;color:var(--blue2);border:2px solid var(--blue);width:100%}
+.btn.small{font-size:12px;padding:8px 12px}
+.btn:disabled{opacity:.45;cursor:not-allowed}
+.header{display:flex;justify-content:space-between;align-items:center;gap:8px}
+h2{font-size:21px}h3{font-size:16px}
+.muted{font-size:12px;color:var(--muted)}
+.card{background:white;border-radius:18px;padding:13px;box-shadow:0 4px 12px #00000009}
+.stats{display:flex;justify-content:space-between;align-items:center}
+.topic{display:flex;align-items:center;gap:12px;cursor:pointer;margin-bottom:8px}
+.topic .emoji{font-size:26px;background:#E8F3F9;border-radius:13px;padding:9px}
+.topic strong{display:block;font-size:14px}.topic span{font-size:11px;color:var(--muted)}
+.nav{display:flex;justify-content:space-around;background:white;border-top:1px solid #e5eef2;padding:8px 4px}
+.nav button{background:none;border:0;color:var(--muted);font-size:11px;font-weight:800;cursor:pointer}
+.nav button span{display:block;font-size:18px}
+.video-frame{width:100%;aspect-ratio:16/9;border:0;border-radius:14px;background:#14202a}
+.section-label{font-size:13px;font-weight:800;margin-bottom:5px}
+.script-line{padding:9px 10px;border-radius:12px;background:#fff;margin:6px 0;border-left:4px solid var(--blue);font-size:12px}
+.script-line .translation{display:block;color:var(--muted);margin-top:3px}
+.script-line.current{border-left-color:#E6A23C;background:#FFF8E8}
+.pills{display:flex;gap:7px;flex-wrap:wrap}
+.phrase{font-size:16px;font-weight:800;line-height:1.4}
+.progress{height:8px;border-radius:10px;background:#e1ebf0;overflow:hidden}.progress>div{height:100%;background:var(--blue);width:0%;transition:width .25s}
+.wave{height:42px;width:100%;border-radius:12px;background:repeating-linear-gradient(90deg,#d9edf8 0 3px,transparent 3px 7px);position:relative;overflow:hidden}
+.wave:after{content:"";position:absolute;left:0;top:0;bottom:0;width:var(--wave,0%);background:#5ba4cf55;transition:width .2s}
+.recording{background:#e74c3c!important;animation:pulse 1s infinite}
+@keyframes pulse{50%{box-shadow:0 0 0 7px #e74c3c22}}
+.word{display:flex;justify-content:space-between;padding:7px 9px;border-radius:10px;margin:5px 0;font-size:12px;background:#f4f8fa}
+.good{background:#eafaf1;color:#1e8449}.bad{background:#fdeDEC;color:#b03a2e}
+.vocab-row{display:flex;justify-content:space-between;gap:10px;align-items:center;padding:9px;border-bottom:1px solid #edf2f4;font-size:13px}
+.vocab-row small{display:block;color:var(--muted)}
+.reward{font-size:38px;text-align:center}.hidden{display:none!important}
+audio{width:100%}
+.note{font-size:11px;line-height:1.4;color:var(--muted)}
+@media(max-height:700px){.app{height:96vh}.screen{padding-top:10px;gap:8px}.mascot{font-size:80px}}
+</style>
+</head>
+<body>
+<div class="app">
+  <div class="status"><span>Tilkayo 🐾</span><span>🎧 English practice</span></div>
+
+  <section id="welcome" class="screen welcome active">
+    <div><div class="logo">Tilkayo 🐆</div><div class="sub">Habla inglés con Los Simpson</div></div>
+    <div class="mascot" id="welcomeMascot">🐆</div>
+    <div style="width:100%">
+      <p>¡Vamos a practicar doblaje!</p>
+      <input id="studentName" class="name-input" placeholder="Escribe tu nombre" maxlength="28" autocomplete="name">
+      <button class="btn white" onclick="startApp()">Comenzar →</button>
+      <p class="note" style="color:white;margin-top:10px">Tu nombre y progreso se guardan en este dispositivo.</p>
+    </div>
+  </section>
+
+  <section id="home" class="screen">
+    <div class="header"><div><h2 id="greeting">¡Hola!</h2><p class="muted">Elige una escena para doblar 💙</p></div><div class="mascot" id="homeMascot" style="font-size:45px">🐆</div></div>
+    <div class="card stats"><div><strong>⭐ <span id="points">0</span> puntos</strong><p class="muted"><span id="completed">0</span> de 4 escenas completadas</p></div><strong id="foodCount">🍖 0</strong></div>
+    <div class="section-label">Tus escenas</div>
+    <div id="topicList"></div>
+    <button class="btn outline" onclick="showScreen('vocab')">📚 Abrir vocabulario general</button>
+  </section>
+
+  <section id="practice" class="screen">
+    <div class="header"><button class="btn small" onclick="showScreen('home')">← Inicio</button><strong id="sceneTitle">Escena</strong><span id="sceneNumber" class="muted">1/4</span></div>
+    <div class="progress"><div id="sceneProgress"></div></div>
+    <div class="card">
+      <div class="section-label">1. Mira la escena completa</div>
+      <iframe id="fullVideo" class="video-frame" allow="autoplay; encrypted-media; picture-in-picture" allowfullscreen title="Escena completa"></iframe>
+      <p class="note" style="margin-top:6px">Puedes usar los controles del reproductor de Google Drive. El guion bilingüe está debajo.</p>
+      <div class="pills" style="margin-top:8px"><button class="btn small" onclick="toggleScript()">Ver / ocultar guion bilingüe</button></div>
+      <div id="fullScript" class="hidden" style="margin-top:8px"></div>
+    </div>
+    <div class="card">
+      <div class="section-label">2. Tu video para doblar</div>
+      <iframe id="dubVideo" class="video-frame" allow="autoplay; encrypted-media; picture-in-picture" allowfullscreen title="Video para doblar"></iframe>
+      <p class="note" style="margin-top:6px">Reproduce el video y pausa cuando necesites. El reproductor de Drive no permite que Tilkayo controle automáticamente los segundos ni silencie su audio.</p>
+    </div>
+    <div class="card">
+      <div class="header"><div class="section-label">3. Graba frase por frase</div><span class="muted" id="phraseCount">1/1</span></div>
+      <div class="progress"><div id="phraseProgress"></div></div>
+      <p class="muted" id="speakerName">Personaje</p>
+      <p class="phrase" id="phraseText">Frase en inglés</p>
+      <p class="muted" id="phraseTranslation"></p>
+      <div class="pills">
+        <button class="btn small" onclick="speakCurrent()">🔊 Escuchar modelo</button>
+        <button class="btn small" id="recordBtn" onclick="toggleRecording()">🎙️ Grabar frase</button>
+      </div>
+      <div class="wave" id="waveform" style="margin-top:9px"></div>
+      <p class="muted" id="recordStatus">Pulsa grabar, di la frase y vuelve a pulsar para terminar.</p>
+      <p class="note" id="transcriptText"></p>
+      <div class="pills"><button class="btn outline small" onclick="previousPhrase()">← Anterior</button><button class="btn small" id="nextPhraseBtn" onclick="nextPhrase()">Siguiente frase →</button></div>
+    </div>
+    <div class="card">
+      <div class="section-label">4. Tu doblaje grabado</div>
+      <button class="btn outline" onclick="buildFinalAudio()">Unir mis grabaciones y escuchar</button>
+      <audio id="finalAudio" controls class="hidden"></audio>
+      <p class="note" id="finalAudioNote">Al terminar las frases, podrás escuchar tu voz en una sola pista de audio.</p>
+      <button class="btn" style="width:100%;margin-top:8px" onclick="finishScene()">Terminar escena y ver resultados</button>
+    </div>
+  </section>
+
+  <section id="vocab" class="screen">
+    <div class="header"><button class="btn small" onclick="showScreen('home')">← Inicio</button><h2>Vocabulario</h2></div>
+    <p class="muted">Palabras y expresiones de las cuatro escenas. Pulsa 🔊 para escuchar.</p>
+    <div class="card" id="vocabList"></div>
+  </section>
+
+  <section id="results" class="screen">
+    <div class="header"><button class="btn small" onclick="showScreen('home')">← Inicio</button><h2>Tu escena doblada</h2></div>
+    <div class="card">
+      <div class="section-label">🎬 ¡Mira tu doblaje!</div>
+      <video id="resultVideo" class="video-frame" controls playsinline muted preload="metadata"></video>
+      <button class="btn" style="width:100%;margin-top:9px" id="playDubBtn" onclick="playDubbedScene()">▶ Reproducir video con mi voz</button>
+      <p class="note" id="dubPlaybackStatus" style="margin-top:7px">El video se reproduce sin su audio original y tu voz grabada se escucha encima.</p>
+      <audio id="finalAudio" controls class="hidden"></audio>
+    </div>
+    <div class="card" style="text-align:center"><div class="mascot" id="rewardMascot" style="font-size:75px">🐆</div><h2 id="resultTitle">¡Buen trabajo!</h2><p id="resultSummary" class="muted"></p><div class="reward" id="foodReward">🍖</div><p id="rewardText"></p></div>
+    <div class="card"><h3>Puntuación por frase</h3><div id="resultWords"></div><p class="note">El puntaje compara las palabras reconocidas por el navegador con el guion. Es una estimación de coincidencia del texto, no una evaluación fonética exacta del acento.</p></div>
+    <button class="btn" onclick="showScreen('home')">Volver a mis escenas</button>
+  </section>
+
+  <section id="progress" class="screen">
+    <div class="header"><button class="btn small" onclick="showScreen('home')">← Inicio</button><h2>Mi progreso</h2></div>
+    <div class="card"><h3 id="progressName"></h3><p id="progressStats" class="muted"></p><div class="mascot" id="progressMascot" style="font-size:90px;text-align:center">🐆</div><p id="progressFood" style="text-align:center"></p></div>
+  </section>
+
+  <nav class="nav">
+    <button onclick="showScreen('home')"><span>🏠</span>Inicio</button>
+    <button onclick="openScene(0)"><span>🎬</span>Escenas</button>
+    <button onclick="showScreen('vocab')"><span>📚</span>Vocabulario</button>
+    <button onclick="showScreen('progress')"><span>📊</span>Progreso</button>
+  </nav>
+</div>
+
+<script>
+const scenes = [
+ {title:"Escena 1: El primer día",full:"https://drive.google.com/file/d/1kU1fAUI0Htdqx6RykChcpC1GEHKFkA9-/preview",dub:"https://drive.google.com/file/d/1gWfP42BTDCjk2YD4k5LMe9or7xY2rhXg/preview",lines:[
+  ["Mr. Burns","It would be so irresponsible.","Sería muy irresponsable."],
+  ["Homer","It's my first day.","Es mi primer día."],
+  ["Mr. Burns","Since I've never seen you before, maybe it is your first day.","Como nunca te había visto antes, quizá sí sea tu primer día."],
+  ["Mr. Burns","Very well, carry on.","Muy bien, continúa."],
+  ["Smithers","Sir, that's Homer Simpson. He's been working here for 10 years.","Señor, ese es Homer Simpson. Ha trabajado aquí durante 10 años."],
+  ["Mr. Burns","Really? Why did you think you could lie to me?","¿En serio? ¿Por qué pensaste que podías mentirme?"],
+  ["Homer","It's my first day.","Es mi primer día."],
+  ["Mr. Burns","Oh, why didn't you say so before? You're fired.","Oh, ¿por qué no lo dijiste antes? ¡Estás despedido!"]
+ ],vocab:[["irresponsible","irresponsable"],["first day","primer día"],["carry on","continúa"],["working here","trabajando aquí"],["lie","mentir"],["you're fired","estás despedido"]]},
+ {title:"Escena 2: Sábado de iglesia",full:"https://drive.google.com/file/d/18cFszT88mPdFkQwB0thOPFWsJsP1g3XW/preview",dub:"https://drive.google.com/file/d/1yw1aelOdQB2pExrem1yg0ArqwA4O5K4t/preview",lines:[
+  ["Ned Flanders","Knock that off, you two. It's time for church.","Dejen de hacer eso, ustedes dos. Es hora de ir a la iglesia."],
+  ["Rod Flanders","Going to church today...","¿Ir a la iglesia hoy..."],
+  ["Ned Flanders","You give me one good reason...","Dame una buena razón..."],
+  ["Rod Flanders","It's Saturday.","Es sábado."],
+  ["Ned Flanders","Sabadabi... sabadón. Okely dokely doo.","Sabadabi... sabadón. ¡De acuerdo, perfecto!"]
+ ],vocab:[["knock that off","dejen de hacer eso"],["you two","ustedes dos"],["church","iglesia"],["today","hoy"],["one good reason","una buena razón"],["Saturday","sábado"],["Okely dokely doo","expresión característica de Ned"]]},
+ {title:"Escena 3: Terapia familiar",full:"https://drive.google.com/file/d/1xKLcUDNG0SQ5Zn8DCNJhHEvlJeWcz1zJ/preview",dub:"https://drive.google.com/file/d/1ys1-BcdivBo13JB-TrzWhKZonLEZ3w7n/preview",lines:[
+  ["Homer Simpson","Did you talk about me in therapy today?","¿Hablaste de mí en la terapia hoy?"],
+  ["Marge Simpson","I don't think so.","No lo creo."],
+  ["Homer Simpson","Tell me the truth.","Dime la verdad."],
+  ["Homer Simpson","Don't tell her! I raised my voice! Don't...","¡No se lo digas! ¡Levanté la voz! ¡No...!"],
+  ["Homer Simpson","Happy family.","Familia feliz."]
+ ],vocab:[["talk about","hablar de / sobre"],["therapy","terapia"],["today","hoy"],["the truth","la verdad"],["raise my voice","levantar la voz"],["happy family","familia feliz"]]},
+ {title:"Escena 4: Contabilidad",full:"https://drive.google.com/file/d/1uXH313fZ0awPTJ_NCBjXj0OqBb7u7O-V/preview",dub:"https://drive.google.com/file/d/1won15smEqcmsdeyl2TrfKQu0rkzAWONd/preview",lines:[
+  ["Mr. Burns","Simpson, did you get the report on the accounting department?","Simpson, ¿recibió el informe del departamento de contabilidad?"],
+  ["Homer Simpson","Yes, sir, I did.","Sí, señor, así es."],
+  ["Homer Simpson","The accounting department is located on the third floor.","El departamento de contabilidad está ubicado en el tercer piso."],
+  ["Homer Simpson","Its hours are 9:00 AM to 5:00 PM.","Su horario es de 9:00 a. m. a 5:00 p. m."],
+  ["Homer Simpson","The head of this department is a Mr. Johnson... or Johnstone.","El jefe de este departamento es el señor Johnson... o Johnstone."]
+ ],vocab:[["report","informe"],["accounting department","departamento de contabilidad"],["located","ubicado"],["third floor","tercer piso"],["hours","horario"],["head of department","jefe del departamento"]]}
+];
+const foods=["🍖","🌭","🥩","🍗"];
+let student=localStorage.getItem("tilkayo_name")||"",points=Number(localStorage.getItem("tilkayo_points")||0),done=JSON.parse(localStorage.getItem("tilkayo_done")||"[]"),current=0,lineIndex=0,recording=false,recorder=null,stream=null,recognition=null,recorded={},transcripts={},finalAudioUrl=null;
+function save(){localStorage.setItem("tilkayo_name",student);localStorage.setItem("tilkayo_points",points);localStorage.setItem("tilkayo_done",JSON.stringify(done))}
+function startApp(){const v=document.getElementById("studentName").value.trim();if(!v){alert("Escribe tu nombre para comenzar.");return}student=v;save();renderHome();showScreen("home")}
+function showScreen(id){document.querySelectorAll(".screen").forEach(s=>s.classList.remove("active"));document.getElementById(id).classList.add("active");if(id==="vocab")renderVocab();if(id==="progress")renderProgress()}
+function drivePreview(url){return url}
+function renderHome(){document.getElementById("greeting").textContent="¡Hola, "+(student||"estudiante")+"!";document.getElementById("points").textContent=points;document.getElementById("completed").textContent=done.length;document.getElementById("foodCount").textContent="🍖 "+done.length;const n=done.length;document.getElementById("homeMascot").style.transform=`scale(${1+n*.10})`;document.getElementById("topicList").innerHTML=scenes.map((s,i)=>`<div class="card topic" onclick="openScene(${i})"><div class="emoji">${["🎬","⛪","🛋️","📊"][i]}</div><div style="flex:1"><strong>${s.title}</strong><span>${s.lines.length} frases · ${done.includes(i)?"Completada ✓":"Pendiente"}</span></div><b>›</b></div>`).join("")}
+function openScene(i){current=i;lineIndex=0;recorded[current]=recorded[current]||{};transcripts[current]=transcripts[current]||{};document.getElementById("sceneTitle").textContent=scenes[i].title;document.getElementById("sceneNumber").textContent=(i+1)+"/4";document.getElementById("fullVideo").src=scenes[i].full;document.getElementById("dubVideo").src=scenes[i].dub;document.getElementById("fullScript").classList.add("hidden");renderLine();showScreen("practice")}
+function toggleScript(){document.getElementById("fullScript").classList.toggle("hidden");const s=scenes[current];document.getElementById("fullScript").innerHTML=s.lines.map(l=>`<div class="script-line"><b>${escapeHtml(l[0])}:</b> ${escapeHtml(l[1])}<span class="translation">${escapeHtml(l[2])}</span></div>`).join("")}
+function escapeHtml(s){return s.replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]))}
+function renderLine(){const l=scenes[current].lines[lineIndex];document.getElementById("phraseCount").textContent=(lineIndex+1)+"/"+scenes[current].lines.length;document.getElementById("phraseProgress").style.width=((lineIndex+1)/scenes[current].lines.length*100)+"%";document.getElementById("sceneProgress").style.width=((current+1)/4*100)+"%";document.getElementById("speakerName").textContent=l[0];document.getElementById("phraseText").textContent=l[1];document.getElementById("phraseTranslation").textContent=l[2];document.getElementById("transcriptText").textContent=transcripts[current][lineIndex]?"Reconocido: "+transcripts[current][lineIndex]:"";document.getElementById("recordStatus").textContent=recorded[current][lineIndex]?"Audio grabado ✓ Puedes repetir la frase o continuar.":"Pulsa grabar, di la frase y vuelve a pulsar para terminar.";document.getElementById("waveform").style.setProperty("--wave",recorded[current][lineIndex]?"100%":"0%");document.getElementById("nextPhraseBtn").textContent=lineIndex===scenes[current].lines.length-1?"Terminar frases ✓":"Siguiente frase →"}
+function speakCurrent(){speechSynthesis.cancel();const u=new SpeechSynthesisUtterance(scenes[current].lines[lineIndex][1]);u.lang="en-US";u.rate=.86;speechSynthesis.speak(u)}
+async function toggleRecording(){if(recording){stopRecording();return}if(!navigator.mediaDevices?.getUserMedia||!window.MediaRecorder){alert("Tu navegador no permite grabar audio. Usa Chrome o Edge actualizado y permite el acceso al micrófono.");return}try{stream=await navigator.mediaDevices.getUserMedia({audio:true});const chunks=[];recorder=new MediaRecorder(stream);recorder.ondataavailable=e=>{if(e.data.size)chunks.push(e.data)};recorder.onstop=()=>{const blob=new Blob(chunks,{type:recorder.mimeType||"audio/webm"});recorded[current][lineIndex]=blob;stream.getTracks().forEach(t=>t.stop());stream=null;renderLine()};recorder.start();recording=true;document.getElementById("recordBtn").classList.add("recording");document.getElementById("recordBtn").textContent="⏹ Detener";document.getElementById("recordStatus").textContent="Grabando tu voz…";document.getElementById("waveform").style.setProperty("--wave","65%");startRecognition()}catch(e){alert("No se pudo acceder al micrófono. Revisa los permisos del navegador.")}}
+function startRecognition(){const SR=window.SpeechRecognition||window.webkitSpeechRecognition;if(!SR)return;try{recognition=new SR();recognition.lang="en-US";recognition.interimResults=false;recognition.maxAlternatives=1;recognition.onresult=e=>{transcripts[current][lineIndex]=e.results[0][0].transcript};recognition.start()}catch(e){}}
+function stopRecording(){if(recorder&&recorder.state!=="inactive")recorder.stop();if(recognition){try{recognition.stop()}catch(e){}}recording=false;document.getElementById("recordBtn").classList.remove("recording");document.getElementById("recordBtn").textContent="🎙️ Grabar frase";document.getElementById("recordStatus").textContent="Procesando grabación…"}
+function nextPhrase(){if(recording)stopRecording();if(lineIndex<scenes[current].lines.length-1){lineIndex++;renderLine()}else{buildFinalAudio();alert("Has recorrido todas las frases. Escucha tu pista y luego termina la escena.")}}
+function previousPhrase(){if(recording)stopRecording();if(lineIndex>0){lineIndex--;renderLine()}}
+async function buildFinalAudio(){
+ const clips=scenes[current].lines.map((_,i)=>recorded[current][i]).filter(Boolean);
+ if(!clips.length){alert("Primero graba al menos una frase.");return false}
+ try{
+  const ctx=new (window.AudioContext||window.webkitAudioContext)(),decoded=[];
+  for(const blob of clips){const arr=await blob.arrayBuffer();decoded.push(await ctx.decodeAudioData(arr))}
+  const rate=ctx.sampleRate;let total=0;decoded.forEach(b=>total+=Math.ceil(b.duration*rate));
+  const pcm=new Float32Array(total);let offset=0;
+  decoded.forEach(b=>{const data=b.getChannelData(0);pcm.set(data,offset);offset+=data.length});
+  const wav=encodeWav(pcm,rate);if(finalAudioUrl)URL.revokeObjectURL(finalAudioUrl);
+  finalAudioUrl=URL.createObjectURL(wav);
+  const a=document.getElementById("finalAudio");a.src=finalAudioUrl;a.classList.remove("hidden");
+  document.getElementById("dubPlaybackStatus").textContent="Tu pista de voz está lista. Pulsa el botón para iniciar el video y tu audio al mismo tiempo.";
+  await ctx.close();return true;
+ }catch(e){alert("No se pudieron unir las grabaciones en este navegador. Prueba con Chrome o Edge actualizado.");return false}
+}
+function driveDirect(url){const m=url.match(/\/d\/([^/]+)/);return m?"https://drive.google.com/uc?export=download&id="+m[1]:url}
+async function playDubbedScene(){
+ const video=document.getElementById("resultVideo"),audio=document.getElementById("finalAudio");
+ if(!audio.src){const ok=await buildFinalAudio();if(!ok)return}
+ video.muted=true;audio.currentTime=0;video.currentTime=0;
+ try{await video.play();await audio.play();document.getElementById("dubPlaybackStatus").textContent="Reproduciendo el video con el audio de tu doblaje."}
+ catch(e){document.getElementById("dubPlaybackStatus").textContent="No se pudo reproducir el MP4 directamente desde Drive. Comprueba que el archivo permita acceso a cualquiera con el enlace; si Drive bloquea la reproducción, necesitaremos alojar el MP4 en un servicio de video compatible.";}
+}
+function encodeWav(samples,rate){const buffer=new ArrayBuffer(44+samples.length*2),view=new DataView(buffer);function str(o,s){for(let i=0;i<s.length;i++)view.setUint8(o+i,s.charCodeAt(i))}str(0,"RIFF");view.setUint32(4,36+samples.length*2,true);str(8,"WAVE");str(12,"fmt ");view.setUint32(16,16,true);view.setUint16(20,1,true);view.setUint16(22,1,true);view.setUint32(24,rate,true);view.setUint32(28,rate*2,true);view.setUint16(32,2,true);view.setUint16(34,16,true);str(36,"data");view.setUint32(40,samples.length*2,true);let o=44;for(let i=0;i<samples.length;i++,o+=2){let s=Math.max(-1,Math.min(1,samples[i]));view.setInt16(o,s<0?s*0x8000:s*0x7fff,true)}return new Blob([view],{type:"audio/wav"})}
+async function finishScene(){
+ if(recording)stopRecording();
+ const audioReady=await buildFinalAudio();
+ const s=scenes[current],rows=document.getElementById("resultWords");let html="",sum=0,scored=0;
+ s.lines.forEach((l,i)=>{
+  const said=transcripts[current][i]||"",expected=normalize(l[1]),heard=normalize(said);
+  const words=expected.split(" ").filter(Boolean);let correct=0;words.forEach(w=>{if(heard.split(" ").includes(w))correct++});
+  const pct=said?(words.length?Math.round(correct/words.length*100):0):null;
+  if(pct!==null){sum+=pct;scored++}
+  const scoreLabel=pct===null?"Sin puntuación (no se reconoció voz)":pct+"% de coincidencia";
+  html+=`<div class="script-line"><b>${escapeHtml(l[0])}</b><br>${escapeHtml(l[1])}<span class="translation">${said?"Reconocido: "+escapeHtml(said):"No se obtuvo transcripción."}</span><div class="header" style="margin-top:7px"><b>Puntaje de esta frase</b><b>${scoreLabel}</b></div><div class="progress" style="margin-top:5px"><div style="width:${pct===null?0:pct}%;background:${pct!==null&&pct>=75?'#2ECC71':'#E6A23C'}"></div></div></div>`;
+ });
+ rows.innerHTML=html;
+ const pct=scored?Math.round(sum/scored):null;
+ document.getElementById("resultTitle").textContent=pct!==null&&pct>=75?"¡Buen trabajo!":"¡Sigue practicando!";
+ document.getElementById("resultSummary").textContent=pct!==null?"Promedio de coincidencia de tus frases: "+pct+"%":"No hubo transcripción disponible para puntuar. Las grabaciones se conservan si se pudieron registrar.";
+ const video=document.getElementById("resultVideo");video.pause();video.src=driveDirect(scenes[current].dub);video.load();
+ document.getElementById("playDubBtn").disabled=!audioReady;
+ document.getElementById("foodReward").textContent=foods[current];
+ let first=!done.includes(current);if(first){done.push(current);points+=50;save()}
+ document.getElementById("rewardText").textContent=first?"¡Tilkayo ganó una comida por tu esfuerzo! +50 puntos":"¡Volviste a practicar esta escena!";
+ document.getElementById("rewardMascot").style.transform=`scale(${1+done.length*.12})`;
+ renderHome();showScreen("results");
+}
+document.addEventListener("DOMContentLoaded",()=>{const v=document.getElementById("resultVideo"),a=document.getElementById("finalAudio");if(v&&a){v.addEventListener("ended",()=>a.pause());}});
+function normalize(s){return s.toLowerCase().replace(/[^a-z0-9\s']/g,"").replace(/\s+/g," ").trim()}
+function renderVocab(){let all=[];scenes.forEach(s=>s.vocab.forEach(v=>all.push(v)));document.getElementById("vocabList").innerHTML=all.map(v=>`<div class="vocab-row"><div><b>${escapeHtml(v[0])}</b><small>${escapeHtml(v[1])}</small></div><button class="btn small" onclick="sayWord('${v[0].replace(/'/g,"\\'")}')">🔊</button></div>`).join("")}
+function sayWord(w){speechSynthesis.cancel();const u=new SpeechSynthesisUtterance(w);u.lang="en-US";u.rate=.85;speechSynthesis.speak(u)}
+function renderProgress(){document.getElementById("progressName").textContent=student;document.getElementById("progressStats").textContent=done.length+" escenas completadas · "+points+" puntos";document.getElementById("progressMascot").style.transform=`scale(${1+done.length*.13})`;document.getElementById("progressFood").textContent=done.map(i=>foods[i]).join(" ")||"Todavía no hay recompensas"}
+(function init(){if(student){document.getElementById("studentName").value=student;renderHome();showScreen("home")}else{showScreen("welcome")}})();
+</script>
+</body>
+</html>
